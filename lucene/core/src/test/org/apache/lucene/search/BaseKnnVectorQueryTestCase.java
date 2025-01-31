@@ -959,28 +959,25 @@ abstract class BaseKnnVectorQueryTestCase extends LuceneTestCase {
       throws IOException {
     Directory indexStore = newDirectoryForTest();
     RandomIndexWriter writer = new RandomIndexWriter(random(), indexStore);
+
     for (int i = 0; i < contents.length; ++i) {
       Document doc = new Document();
       doc.add(getKnnVectorField(field, contents[i], vectorSimilarityFunction));
       doc.add(new StringField("id", "id" + i, Field.Store.YES));
       writer.addDocument(doc);
-      if (randomBoolean()) {
-        // Add some documents without a vector
-        for (int j = 0; j < randomIntBetween(1, 5); j++) {
-          doc = new Document();
-          doc.add(new StringField("other", "value", Field.Store.NO));
-          // Add fields that will be matched by our test filters but won't have vectors
-          doc.add(new StringField("id", "id" + j, Field.Store.YES));
-          writer.addDocument(doc);
-        }
+    }
+
+    if (randomBoolean()) {
+      // Add some documents without a vector
+      for (int j = 0; j < randomIntBetween(1, 5); j++) {
+        Document doc = new Document();
+        doc.add(new StringField("other", "value", Field.Store.NO));
+        // Add fields that will be matched by our test filters but won't have vectors
+        doc.add(new StringField("id", "id" + j, Field.Store.YES));
+        writer.addDocument(doc);
       }
     }
-    // Add some documents without a vector
-    for (int i = 0; i < 5; i++) {
-      Document doc = new Document();
-      doc.add(new StringField("other", "value", Field.Store.NO));
-      writer.addDocument(doc);
-    }
+
     writer.close();
     return indexStore;
   }
